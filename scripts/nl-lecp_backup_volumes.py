@@ -75,6 +75,10 @@ def CreateSnapshot(vol_to_snap, vol_details, instance_details):
                     'Key': 'ExpirationDate',
                     'Value': str(expirationDate)
                   },
+                  {
+                    'Key': 'Owner',
+                    'Value': 'LECP'
+                  },
                 ]
               },
             ],
