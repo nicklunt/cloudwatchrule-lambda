@@ -2,10 +2,19 @@
 
 # NOTE: Create the IAM policy/role from template_file **
 
-# role policy
+# template file for the policy
+data "template_file" "backups_policy" {
+  template = file("iam/nl-backup_lambda_policy.tpl")
+  vars = {
+    target_account = var.target_acid
+  }
+}
+
+# policy
 resource "aws_iam_role_policy" "nl-lecp_backup_volumes_policy" {
   name = "nl-lecp_backup_volumes_policy"
-  policy = file("iam/nl-backup_lambda_policy.json")
+  # policy = file("iam/nl-backup_lambda_policy.json")
+  policy = data.template_file.backups_policy.rendered
   role = aws_iam_role.nl-lecp_backup_volumes_role.id
 }
 
