@@ -22,6 +22,7 @@ data "archive_file" "nl-lecp_backup_volumes" {
   output_path = "scripts/nl-lecp_backup_volumes.zip"
 }
 
+# Create the lamdba function to run the python module
 resource "aws_lambda_function" "nl-lecp_backups_lambda" {
   filename = data.archive_file.nl-lecp_backup_volumes.output_path
   function_name = "nl-lecp_backup_volumes"
@@ -30,6 +31,7 @@ resource "aws_lambda_function" "nl-lecp_backups_lambda" {
   role = aws_iam_role.nl-lecp_backup_volumes_role.arn
 }
 
+# Allow cloudwatch events to run the lambda function
 resource "aws_lambda_permission" "nl-allow-cw-lambda" {
   statement_id  = "AllowExecutionFromCloudWatch"
   action        = "lambda:InvokeFunction"
