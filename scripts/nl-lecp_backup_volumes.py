@@ -22,76 +22,81 @@ def CreateSnapshot(vol_to_snap, vol_details, instance_details):
 
   for tags in instance_details['Tags']:
     if tags['Key'] in ['name', 'Name', 'NAME']:
-      snapshot_name = tags['Value']
+      tname = "nl-{}".format(tags['Value'])
+      # snapshot_name = "nl-" + tags['Value']
+      snapshot_name = tname
+      # snapshot_name = tags['Value']
     else:
       snapshot_name = "nl"
 
   v = ec.describe_volumes(VolumeIds=[vol_to_snap])
 
   for r in v['Volumes']:
-    for tags in r['Tags']:
-      if tags['Key'] in ['name', 'Name', 'NAME']: # The tags need to be decided upon and set in TF.
-        volume_name = tags['Value']
-      else:
-        volume_name = "NA"
-      if tags['Key'] in ['backup', 'Backup'] and tags['Value'] in ['yes', 'YES', 'Yes', 'true', 'TRUE', 'True']: # The tags need to be decided upon and set in TF.
-        description = "Instance Name:{}\nInstance ID:{}\nVolume Name:{}\nSource VolumeID:{}\nSource Device Name:{}\nCreated:{}".format(snapshot_name, instance_details['InstanceId'], volume_name, vol_to_snap, vol_details['DeviceName'], today)
-        print("Creating snapshot from source volume {}".format(vol_to_snap))
-        print(description)
-        
-        response = ec.create_snapshot(
-          Description = description,
-          VolumeId = vol_to_snap,
-          TagSpecifications = [
-            {
-              'ResourceType': 'snapshot',
-              'Tags': 
-                [
-                  {
-                    'Key': 'SnapshotName',
-                    'Value': snapshot_name
-                  },
-                  {
-                    'Key': 'InstanceID',
-                    'Value': instance_details['InstanceId']
-                  },
-                  {
-                    'Key': 'SourceVolumeID',
-                    'Value': vol_to_snap
-                  },
-                  {
-                    'Key': 'DeviceName',
-                    'Value': vol_details['DeviceName']
-                  },
-                  {
-                    'Key': 'Created',
-                    'Value': str(today)
-                  },
-                  {
-                    'Key': 'SourceVolumeName',
-                    'Value': volume_name
-                  },
-                  {
-                    'Key': 'ExpirationDate',
-                    'Value': str(expirationDate)
-                  },
-                  {
-                    'Key': 'Owner',
-                    'Value': 'LECP'
-                  },
-                ]
-              },
-            ],
-            DryRun=False
-          )
-        print("Snapshot created from source volume {}".format(vol_to_snap))
+    if 'Tags' in r.keys():
+      for tags in r['Tags']:
+        if tags['Key'] in ['name', 'Name', 'NAME']: # The tags need to be decided upon and set in TF.
+          volume_name = tags['Value']
+        else:
+          volume_name = "NA"
 
+        if tags['Key'] in ['backup', 'Backup'] and tags['Value'] in ['yes', 'YES', 'Yes', 'true', 'TRUE', 'True']: # The tags need to be decided upon and set in TF.
+          description = "Instance Name:{}\nInstance ID:{}\nVolume Name:{}\nSource VolumeID:{}\nSource Device Name:{}\nCreated:{}".format(snapshot_name, instance_details['InstanceId'], volume_name, vol_to_snap, vol_details['DeviceName'], today)
+          print("Creating snapshot from source volume {}".format(vol_to_snap))
+          print(description)
+          
+          response = ec.create_snapshot(
+            Description = description,
+            VolumeId = vol_to_snap,
+            TagSpecifications = [
+              {
+                'ResourceType': 'snapshot',
+                'Tags': 
+                  [
+                    {
+                      'Key': 'SnapshotName',
+                      'Value': snapshot_name
+                    },
+                    {
+                      'Key': 'InstanceID',
+                      'Value': instance_details['InstanceId']
+                    },
+                    {
+                      'Key': 'SourceVolumeID',
+                      'Value': vol_to_snap
+                    },
+                    {
+                      'Key': 'DeviceName',
+                      'Value': vol_details['DeviceName']
+                    },
+                    {
+                      'Key': 'Created',
+                      'Value': str(today)
+                    },
+                    {
+                      'Key': 'SourceVolumeName',
+                      'Value': volume_name
+                    },
+                    {
+                      'Key': 'ExpirationDate',
+                      'Value': str(expirationDate)
+                    },
+                    {
+                      'Key': 'Owner',
+                      'Value': 'LECP'
+                    },
+                  ]
+                },
+              ],
+              DryRun=False
+            )
+          print("Snapshot created from source volume {}".format(vol_to_snap))
+      
 def GetVolumes(instance):
   for vol in instance['BlockDeviceMappings']:
     vol_id = vol['Ebs']['VolumeId']
     CreateSnapshot(vol_id, vol, instance)
 
-# The tags need to be decided upon and set in TF.
+# The tags need to be decided upon and set in TF at the top of this script.
 def GetInstances():
   reservations = ec.describe_instances(
     Filters = [
