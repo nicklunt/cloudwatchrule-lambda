@@ -41,7 +41,7 @@ resource "aws_lambda_function" "nl-lecp_backups_lambda" {
 
   source_code_hash = filebase64sha256("scripts/nl-lecp_backup_volumes.zip")
 
-  depends_on = [data.archive_file.lecp_backup_volumes]
+  depends_on = [data.archive_file.nl-lecp_backup_volumes]
 }
 
 # Allow cloudwatch events to run the lambda function
