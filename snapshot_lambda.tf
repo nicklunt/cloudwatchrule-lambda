@@ -38,6 +38,10 @@ resource "aws_lambda_function" "nl-lecp_backups_lambda" {
   runtime = "python3.6"
   handler = "nl-lecp_backup_volumes.lambda_handler"
   role = aws_iam_role.nl-lecp_backup_volumes_role.arn
+
+  source_code_hash = filebase64sha256("scripts/nl-lecp_backup_volumes.zip")
+
+  depends_on = [data.archive_file.lecp_backup_volumes]
 }
 
 # Allow cloudwatch events to run the lambda function

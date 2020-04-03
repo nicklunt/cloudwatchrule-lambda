@@ -23,9 +23,7 @@ def CreateSnapshot(vol_to_snap, vol_details, instance_details):
   for tags in instance_details['Tags']:
     if tags['Key'] in ['name', 'Name', 'NAME']:
       tname = "nl-{}".format(tags['Value'])
-      # snapshot_name = "nl-" + tags['Value']
       snapshot_name = tname
-      # snapshot_name = tags['Value']
     else:
       snapshot_name = "nl"
 
