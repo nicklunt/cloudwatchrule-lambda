@@ -1,5 +1,5 @@
 variable snapshot_schedule {
-  default = "cron(0/5 * * * ? *)"
+  default = "cron(1 14 * * ? *)"
   description = "The cron schedule for creating ebs volume snapshots."
 
 }
